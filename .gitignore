@@ -1,0 +1,12 @@
+/.angular/cache
+node_modules
+.DS_Store
+*.js
+!custom-stylelint-rules/*.js
+!scripts/*.js
+!hooks/**/*.js
+!gulpfile.js
+*.map
+www
+version.json
+.idea
