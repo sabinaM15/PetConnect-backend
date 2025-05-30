@@ -4,10 +4,11 @@ const pool = require('../utils/db');
 
 // Adăugare animal cu date medicale
 router.post('/Animal', async (req, res) => {
+  console.log('REQ BODY:', req.body)
   const {
     posesor, nume, data_nasterii, sex, categorie, rasa, greutate,
     temperament, culoare, certificat_pedigree,
-    vaccin, data_vaccinarii, deparazitare, data_deparazitarii, sterilizat
+    vaccin, data_expirare_vaccin, deparazitare, data_expirare_deparazitare, sterilizat
   } = req.body;
 
   try {
@@ -16,13 +17,13 @@ router.post('/Animal', async (req, res) => {
       [
         posesor, nume, data_nasterii, sex, categorie, rasa, greutate,
         temperament, culoare, certificat_pedigree,
-        vaccin, data_vaccinarii, deparazitare, data_deparazitarii, sterilizat
+        vaccin, data_expirare_vaccin, deparazitare, data_expirare_deparazitare, sterilizat
       ]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Eroare la adăugare animal' });
+    res.status(500).json(err);
   }
 });
 
@@ -35,7 +36,7 @@ router.get('/Animal', async (req, res) => {
     if (animalId) {
       // Căutare după id animal
       const result = await pool.query(
-        'SELECT * FROM get_animal_by_id_full($1)',
+        'SELECT * FROM get_animal_by_id($1)',
         [animalId]
       );
       if (result.rows.length > 0) {
@@ -66,7 +67,7 @@ router.put('/Animal', async (req, res) => {
   const {
     posesor, nume, data_nasterii, sex, categorie, rasa, greutate,
     temperament, culoare, certificat_pedigree,
-    vaccin, data_vaccinarii, deparazitare, data_deparazitarii, sterilizat
+    vaccin, data_expirare_vaccin, deparazitare, data_deparazitarii, sterilizat
   } = req.body;
 
   if (!animalId) {
@@ -79,7 +80,7 @@ router.put('/Animal', async (req, res) => {
       [
         animalId, posesor, nume, data_nasterii, sex, categorie, rasa, greutate,
         temperament, culoare, certificat_pedigree,
-        vaccin, data_vaccinarii, deparazitare, data_deparazitarii, sterilizat
+        vaccin, data_expirare_vaccin, deparazitare, data_deparazitarii, sterilizat
       ]
     );
     if (result.rows.length > 0) {
