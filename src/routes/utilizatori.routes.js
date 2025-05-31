@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
+const multer = require('multer');
+const upload = multer();
+
 
 // Adăugare utilizator
 // router.post('/utilizatori', async (req, res) => {
@@ -39,10 +42,28 @@ router.post('/login', async (req, res) => {
 });
 
 
+router.get('/Utilizatori/:id', async (req, res) => {
+  const utilizatorId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM get_utilizator_by_id($1)',
+      [utilizatorId]
+    );
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
+    } else {
+      res.status(404).json({ error: 'Utilizatorul nu a fost găsit.' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Eroare la preluarea utilizatorului.' });
+  }
+});
+
 // Update utilizator
-router.put('/Utilizatori', async (req, res) => {
-  // Poți lua id-ul din query sau din body, după preferință:
-  console.log('Request body:', req.body);
+router.put('/Utilizatori', upload.single('poza'), async (req, res) => {
+  // id-ul poate veni din query sau body
   const utilizator_id = req.query.id || req.body.utilizator_id;
   const {
     nume,
@@ -56,9 +77,12 @@ router.put('/Utilizatori', async (req, res) => {
     tip_profil
   } = req.body;
 
+  // poza poate fi null dacă nu se trimite
+  const poza = req.file ? req.file.buffer : null;
+
   try {
     const result = await pool.query(
-      'SELECT * FROM update_utilizator($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
+      'SELECT * FROM update_utilizator($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
       [
         utilizator_id,
         nume,
@@ -69,7 +93,8 @@ router.put('/Utilizatori', async (req, res) => {
         data_nasterii,
         sex,
         parola,
-        tip_profil
+        tip_profil,
+        poza // noul parametru pentru poza
       ]
     );
     if (result.rows.length > 0) {
@@ -82,6 +107,7 @@ router.put('/Utilizatori', async (req, res) => {
     res.status(500).json({ error: 'Eroare la actualizare utilizator.' });
   }
 });
+
 
 
 // listare animale dupa utilizator
