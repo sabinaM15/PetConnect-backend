@@ -137,6 +137,81 @@ router.get("/Utilizatori/validare-email", async (req, res) => {
   );
 });
 
+// resetare parola
+router.post("/Utilizatori/forgot-password", async (req, res) => {
+  const { mail } = req.body;
+  // Caută utilizatorul după email
+  const userResult = await pool.query(
+    'SELECT utilizator_id FROM "Utilizatori" WHERE mail = $1',
+    [mail]
+  );
+
+  if (userResult.rows.length === 0) {
+    // Emailul nu există
+    return res.status(404).json({
+      error: "Nu există un utilizator cu acest email."
+    });
+  }
+
+  // Dacă există, continuă cu generarea tokenului și trimiterea emailului
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiry = new Date(Date.now() + 3600 * 1000); // 1 oră
+  await pool.query(
+    'UPDATE "Utilizatori" SET reset_token = $1, reset_token_expiry = $2 WHERE utilizator_id = $3',
+    [token, expiry, userResult.rows[0].utilizator_id]
+  );
+  // Trimite emailul
+  const resetLink = `http://localhost:3000/resetare-parola.html?token=${token}`;
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "petconnect17@gmail.com",
+      pass: "sfuu cxub tfha zrvv",
+    },
+  });
+  await transporter.sendMail({
+    from: '"Echipa Aplicatie" <petconnect17@gmail.com>',
+    to: mail,
+    subject: "Resetare parolă",
+    html: `
+      <h3>Resetare parolă</h3>
+      <p>Apasă pe linkul de mai jos pentru a-ți reseta parola:</p>
+      <a href="${resetLink}">Resetează parola</a>
+      <p>Linkul este valabil 1 oră.</p>
+    `,
+  });
+
+  // Răspuns de confirmare dacă emailul există
+  res.json({
+    message:
+      "Email dumneavoastra a fost identificat si veti primi un email de resetare a parolei.",
+  });
+});
+
+
+router.get("/Utilizatori/resetare-parola", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/resetare-parola.html"));
+});
+
+// schimbarea efectiva
+router.post("/Utilizatori/resetare-parola", async (req, res) => {
+  const { token, newPassword } = req.body;
+  // Găsește utilizatorul cu token valid și neexpirat (dacă ai și expirare)
+  const userResult = await pool.query(
+    'SELECT utilizator_id FROM "Utilizatori" WHERE reset_token = $1',
+    [token]
+  );
+  if (userResult.rows.length === 0) {
+    return res.status(400).json({ error: "Token invalid sau expirat." });
+  }
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await pool.query(
+    'UPDATE "Utilizatori" SET parola = $1, reset_token = NULL WHERE utilizator_id = $2',
+    [hashed, userResult.rows[0].utilizator_id]
+  );
+  res.json({ message: "Parola a fost resetată cu succes. Puteti reveni in aplicatie pentru a continua autentificarea" });
+});
+
 // login
 router.post("/login", async (req, res) => {
   const { nume_utilizator, parola } = req.body;
@@ -155,7 +230,11 @@ router.post("/login", async (req, res) => {
 
     // 2. Verifică dacă emailul este validat
     if (!user.email_validat) {
-      return res.status(403).json({ error: "Emailul nu a fost validat. Te rugăm să îți verifici emailul." });
+      return res
+        .status(403)
+        .json({
+          error: "Emailul nu a fost validat. Te rugăm să îți verifici emailul.",
+        });
     }
 
     // 3. Verifică parola

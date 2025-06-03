@@ -14,6 +14,7 @@ const mesajeRoutes = require('./src/routes/mesaje.routes');
 const intrebariRoutes = require('./src/routes/intrebari.routes');
 const raspunsuriRoutes = require('./src/routes/raspunsuri.routes');
 const anunturiRoutes = require('./src/routes/anunturi.routes');
+const path = require('path');
 
 // Configurează rutele
 app.use('/api', utilizatoriRoutes);
@@ -23,6 +24,7 @@ app.use('/api', mesajeRoutes);
 app.use('/api', intrebariRoutes);
 app.use('/api', raspunsuriRoutes);
 app.use('/api', anunturiRoutes);
+app.use(express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
