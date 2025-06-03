@@ -26,7 +26,6 @@ router.get("/utilizatori/nehashuite", async (req, res) => {
     }
     await pool.end();
   } catch (err) {
-    console.error(err);
     res.status(500).json({
       error: "Eroare la preluarea utilizatorilor cu parole ne-hashuite.",
     });
@@ -114,7 +113,6 @@ router.post("/Utilizatori/inregistrare", async (req, res) => {
       utilizator_id,
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Eroare la înregistrare." });
   }
 });
@@ -247,7 +245,6 @@ router.post("/login", async (req, res) => {
     delete user.parola;
     res.json(user);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Eroare server" });
   }
 });
@@ -265,7 +262,6 @@ router.get("/Utilizatori/:id", async (req, res) => {
       res.status(404).json({ error: "Utilizatorul nu a fost găsit." });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Eroare la preluarea utilizatorului." });
   }
 });
@@ -314,7 +310,7 @@ router.put("/Utilizatori", upload.single("poza"), async (req, res) => {
       });
     }
   } catch (err) {
-    console.error(err);
+
     res.status(500).json({ error: "Eroare la actualizare utilizator." });
   }
 });
@@ -328,7 +324,6 @@ router.get("/Animale/:userId", async (req, res) => {
     ]);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Eroare la preluarea animalelor" });
   }
 });
