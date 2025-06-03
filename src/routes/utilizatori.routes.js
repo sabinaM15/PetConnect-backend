@@ -214,12 +214,12 @@ router.post("/Utilizatori/resetare-parola", async (req, res) => {
 
 // login
 router.post("/login", async (req, res) => {
-  const { nume_utilizator, parola } = req.body;
+  const { mail, parola } = req.body;
   try {
-    // 1. Caută utilizatorul după nume_utilizator
+    // 1. Caută utilizatorul după email
     const result = await pool.query(
-      'SELECT * FROM "Utilizatori" WHERE nume_utilizator = $1',
-      [nume_utilizator]
+      'SELECT * FROM "Utilizatori" WHERE mail = $1',
+      [mail]
     );
 
     if (result.rows.length === 0) {
