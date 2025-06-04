@@ -6,6 +6,7 @@ const upload = multer();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const jwt = require('jsonwebtoken');
 
 router.get("/utilizatori/nehashuite", async (req, res) => {
   try {
@@ -45,14 +46,14 @@ router.post("/Utilizatori/inregistrare", async (req, res) => {
 
   try {
     //verifica daca mail nu exista deja in baza de date
-    const checkEmail = await pool.query(
+    const checkmail = await pool.query(
       'SELECT utilizator_id FROM "Utilizatori" WHERE mail = $1',
       [mail]
     );
-    if (checkEmail.rows.length > 0) {
+    if (checkmail.rows.length > 0) {
       return res
         .status(409)
-        .json({ error: "Există deja un cont cu acest email." });
+        .json({ error: "Există deja un cont cu acest mail." });
     }
 
     // 1. Hashuiește parola
@@ -62,10 +63,10 @@ router.post("/Utilizatori/inregistrare", async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(parola, saltRounds);
 
-    // 2. Generează token de validare email
-    const emailToken = crypto.randomBytes(32).toString("hex");
+    // 2. Generează token de validare mail
+    const mailToken = crypto.randomBytes(32).toString("hex");
 
-    // 3. Salvează utilizatorul în baza de date (inclusiv tokenul și email_validat=false)
+    // 3. Salvează utilizatorul în baza de date (inclusiv tokenul și mail_validat=false)
     const result = await pool.query(
       `INSERT INTO "Utilizatori"
         (nume, prenume, mail, telefon, nume_utilizator, parola, tip_profil, email_validat, email_validation_token)
@@ -242,12 +243,34 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Username sau parolă incorectă" });
     }
 
+    // 4. CREEAZĂ JWT TOKEN - ACEASTA ESTE PARTEA NOUĂ
+    const token = jwt.sign(
+      {
+        utilizator_id: user.utilizator_id,
+        email: user.mail,
+        nume: user.nume,
+        prenume: user.prenume,
+        tip_profil: user.tip_profil
+      },
+      process.env.JWT_SECRET, // Asigură-te că ai JWT_SECRET în .env
+      { expiresIn: '24h' }
+    );
+
+    // 5. Elimină parola și returnează user cu token
     delete user.parola;
-    res.json(user);
+    
+    // RETURNEAZĂ USER-UL CU TOKEN-UL ADĂUGAT
+    res.json({
+      ...user,      // Toate datele utilizatorului existente
+      token: token  // ADAUGĂ TOKEN-UL AICI
+    });
+
   } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ error: "Eroare server" });
   }
 });
+
 
 router.get("/Utilizatori/:id", async (req, res) => {
   const utilizatorId = req.params.id;
