@@ -11,18 +11,59 @@ const server = http.createServer(app);
 // Configurează Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:8100", "http://localhost:4200"], // Adaugă și Angular dev server
+    origin: ["http://localhost:8100", "http://localhost:8101", "http://localhost:4200"], // ADAUGĂ 8101
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
-app.use(cors({
-  origin: ["http://localhost:8100", "http://localhost:4200"],
-  credentials: true
-}));
+// ACTUALIZEAZĂ CONFIGURAREA CORS - aceasta este partea principală care lipsește
+const corsOptions = {
+  origin: [
+    "http://localhost:8100", 
+    "http://localhost:8101",  // ADAUGĂ portul tău actual
+    "http://localhost:4200"
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // ADAUGĂ OPTIONS și PUT/DELETE
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// ADAUGĂ MIDDLEWARE SUPLIMENTAR PENTRU PREFLIGHT REQUESTS
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ["http://localhost:8100", "http://localhost:8101", "http://localhost:4200"];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Răspunde la preflight requests
+  if (req.method === 'OPTIONS') {
+    console.log('📋 Preflight request received for:', req.url);
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
+
 app.use(express.json());
 
+// Restul codului tău rămâne la fel...
 // Importă toate rutele
 const utilizatoriRoutes = require('./src/routes/utilizatori.routes');
 const animaleRoutes = require('./src/routes/animale.routes');
@@ -46,7 +87,7 @@ app.use('/api', anunturiRoutes);
 app.use('/api', notificariRoutes);
 app.use('/api/chat', chatRoutes);
 
-// Servește fișierele statice (importante pentru fișierele încărcate)
+// Servește fișierele statice
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware pentru autentificare Socket.IO

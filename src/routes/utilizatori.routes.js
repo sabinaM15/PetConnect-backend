@@ -7,6 +7,8 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const jwt = require('jsonwebtoken');
+const authMiddleware = require('../middleware/auth');
+
 
 router.get("/utilizatori/nehashuite", async (req, res) => {
   try {
@@ -266,7 +268,6 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Login error:', err);
     res.status(500).json({ error: "Eroare server" });
   }
 });
@@ -348,6 +349,41 @@ router.get("/Animale/:userId", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "Eroare la preluarea animalelor" });
+  }
+});
+
+
+router.get('/Utilizatori', authMiddleware, async (req, res) => {
+  try {
+    const query = `
+      SELECT utilizator_id, nume, prenume, mail, tip_profil, email_validat
+      FROM "Utilizatori"
+      WHERE email_validat = true
+      ORDER BY nume, prenume
+    `;
+    
+    const result = await pool.query(query);
+    
+    const users = result.rows.map(user => ({
+      utilizator_id: user.utilizator_id,
+      nume: user.nume,
+      prenume: user.prenume,
+      mail: user.mail,
+      tip_profil: user.tip_profil
+    }));
+    
+    res.json({
+      success: true,
+      data: users,
+      count: users.length
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Eroare la obținerea utilizatorilor',
+      details: error.message
+    });
   }
 });
 
