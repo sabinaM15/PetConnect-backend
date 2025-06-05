@@ -3,12 +3,32 @@ const router = express.Router();
 const pool = require('../utils/db');
 
 router.get('/Anunturi/imperechere', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const count = parseInt(req.query.count) || 10;
+  const sort = req.query.sort || 'data_anuntului';
+
   try {
-    const result = await pool.query('SELECT * FROM get_anunturi_imperechere()');
-    res.json(result.rows);
+    const result = await pool.query(
+      "SELECT * FROM get_anunturi_imperechere($1, $2, $3)", 
+      [count, page, sort]
+    );
+    
+    const anunturi = result.rows;
+    const total = anunturi.length > 0 ? parseInt(anunturi[0].total) : 0;
+    
+    res.json({
+      data: anunturi.map(anunt => {
+        const { total, ...anuntData } = anunt;
+        return anuntData;
+      }),
+      page: page,
+      count: count,
+      sort: sort,
+      total: total
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Eroare la preluare anunțuri.' });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -32,15 +52,36 @@ router.post('/Anunturi/imperechere', async (req, res) => {
   }
 });
 
-router.get('/Anunturi/socializare', async (req, res) => {
+router.get("/Anunturi/socializare", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const count = parseInt(req.query.count) || 10;
+  const sort = req.query.sort || 'data_anuntului';
+
   try {
-    const result = await pool.query('SELECT * FROM get_anunturi_socializare()');
-    res.json(result.rows);
+    const result = await pool.query(
+      "SELECT * FROM get_anunturi_socializare($1, $2, $3)", 
+      [count, page, sort]
+    );
+    
+    const anunturi = result.rows;
+    const total = anunturi.length > 0 ? parseInt(anunturi[0].total) : 0;
+    
+    res.json({
+      data: anunturi.map(anunt => {
+        const { total, ...anuntData } = anunt;
+        return anuntData;
+      }),
+      page: page,
+      count: count,
+      sort: sort,
+      total: total
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Eroare la preluare anunțuri de socializare.' });
+    res.status(500).json({ error: "Server error" });
   }
 });
+
 
 router.post('/Anunturi/socializare', async (req, res) => {
   const {
@@ -90,15 +131,36 @@ router.post('/Anunturi/socializare/participa', async (req, res) => {
   }
 });
 
-router.get('/Anunturi/suport', async (req, res) => {
+router.get("/Anunturi/suport", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const count = parseInt(req.query.count) || 10;
+  const sort = req.query.sort || 'data_anuntului';
+
   try {
-    const result = await pool.query('SELECT * FROM get_anunturi_suport()');
-    res.status(200).json(result.rows);
+    const result = await pool.query(
+      "SELECT * FROM get_anunturi_suport($1, $2, $3)", 
+      [count, page, sort]
+    );
+    
+    const anunturi = result.rows;
+    const total = anunturi.length > 0 ? parseInt(anunturi[0].total) : 0;
+    
+    res.json({
+      data: anunturi.map(anunt => {
+        const { total, ...anuntData } = anunt;
+        return anuntData;
+      }),
+      page: page,
+      count: count,
+      sort: sort,
+      total: total
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Eroare la preluarea anunțurilor de suport.' });
+    res.status(500).json({ error: "Server error" });
   }
 });
+
 
 router.post('/Anunturi/suport', async (req, res) => {
   const {

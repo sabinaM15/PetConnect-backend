@@ -134,28 +134,43 @@ router.post("/Animal", upload.single("poza"), async (req, res) => {
 
 // Vizualizare animale după utilizator/id
 router.get("/Animal", async (req, res) => {
+  console.log('Căutare animale:', req.query);
   const animalId = req.query.id;
   const userId = req.query.user;
+  const page = parseInt(req.query.page) || 1;
+  const count = parseInt(req.query.count) || 10;
+  const sort = req.query.sort || 'data_nasterii';
 
   try {
     if (animalId) {
       // Căutare după id animal
-      const result = await pool.query("SELECT * FROM get_animal_by_id($1)", [
-        animalId,
-      ]);
+      const result = await pool.query("SELECT * FROM get_animal_by_id($1)", [animalId]);
       if (result.rows.length > 0) {
         res.json(result.rows[0]);
       } else {
         res.status(404).json({ error: "Animal not found" });
       }
     } else if (userId) {
-      // Căutare după user (toate animalele posesorului) - FOLOSESTE FUNCȚIA NOUĂ
-      const result = await pool.query("SELECT * FROM get_animale_by_user($1)", [
-        userId,
-      ]);
-      res.json(result.rows);
+      // Căutare după user cu paginare simplă
+      const result = await pool.query(
+        "SELECT * FROM get_animale_by_user($1, $2, $3, $4)", 
+        [userId, count, page, sort]
+      );
+      
+      const animals = result.rows;
+      const total = animals.length > 0 ? parseInt(animals[0].total) : 0;
+      
+      res.json({
+        data: animals.map(animal => {
+          const { total, ...animalData } = animal;
+          return animalData;
+        }),
+        page: page,
+        count: count,
+        sort: sort,
+        total: total
+      });
     } else {
-      // Niciun parametru relevant
       res.status(400).json({ error: "Missing id or user parameter" });
     }
   } catch (err) {
