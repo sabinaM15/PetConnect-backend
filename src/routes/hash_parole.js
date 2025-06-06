@@ -21,6 +21,5 @@ const pool = require("../utils/db");
     }
     await pool.end();
   } catch (err) {
-    console.error("Eroare la hash-uirea parolelor:", err);
   }
 })();

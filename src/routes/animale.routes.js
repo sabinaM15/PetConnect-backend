@@ -7,7 +7,6 @@ const upload = multer();
 
 // PUT /api/Animal?id=Anm2
 router.put('/Animal', async (req, res) => {
-  console.log('Actualizare animal:', req.params.id, req.body);
   const animal_id = req.query.id || req.body.animal_id;
   const {
     data_nasterii,
@@ -71,7 +70,6 @@ router.put('/Animal', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Eroare la actualizarea completă a animalului:', error);
     res.status(500).json({
       error: 'Eroare la actualizarea animalului',
       details: error.message
@@ -81,60 +79,40 @@ router.put('/Animal', async (req, res) => {
 
 // Adăugare animal cu date medicale
 router.post("/Animal", upload.single("poza"), async (req, res) => {
-  // Pentru text: din req.body, pentru poza: din req.file
-  const {
-    posesor,
-    nume,
-    data_nasterii,
-    sex,
-    categorie,
-    rasa,
-    greutate,
-    temperament,
-    culoare,
-    certificat_pedigree,
-    vaccin,
-    data_expirare_vaccin,
-    deparazitare,
-    data_expirare_deparazitare,
-    sterilizat,
-  } = req.body;
-
-  // Poza ca buffer (sau null dacă nu s-a trimis)
-  const poza = req.file ? req.file.buffer : null;
-
   try {
+    const {
+      posesor, nume, data_nasterii, sex, categorie, rasa, greutate,
+      temperament, culoare, certificat_pedigree, vaccin, data_expirare_vaccin,
+      deparazitare, data_expirare_deparazitare, sterilizat
+    } = req.body;
+
     const result = await pool.query(
-      "SELECT * FROM adauga_animal_cu_medical($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)",
-      [
-        posesor,
-        nume,
-        data_nasterii,
-        sex,
-        categorie,
-        rasa,
-        greutate,
-        temperament,
-        culoare,
-        certificat_pedigree,
-        vaccin,
-        data_expirare_vaccin,
-        deparazitare,
-        data_expirare_deparazitare,
-        sterilizat,
-        poza, // adaugi poza ca ultim parametru
-      ]
+      `SELECT adauga_animal_cu_medical($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+      [posesor, nume, data_nasterii, sex, categorie, rasa, greutate, temperament, 
+       culoare, certificat_pedigree, vaccin, data_expirare_vaccin, deparazitare, 
+       data_expirare_deparazitare, sterilizat]
     );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json(err);
+
+    // Dacă folosești Opțiunea 2 (returnează JSON)
+    const response = result.rows[0].adauga_animal_cu_medical;
+    
+    res.json({
+      success: true,
+      data: response,
+      message: response.message
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server error',
+      message: error.message
+    });
   }
 });
 
 // Vizualizare animale după utilizator/id
 router.get("/Animal", async (req, res) => {
-  console.log('Căutare animale:', req.query);
   const animalId = req.query.id;
   const userId = req.query.user;
   const page = parseInt(req.query.page) || 1;
@@ -174,7 +152,6 @@ router.get("/Animal", async (req, res) => {
       res.status(400).json({ error: "Missing id or user parameter" });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -194,7 +171,6 @@ router.post(
       ]);
       res.status(200).json({ message: "Poza salvată cu succes!" });
     } catch (err) {
-      console.error(err);
       res.status(500).json({ error: "Eroare la salvarea pozei." });
     }
   }

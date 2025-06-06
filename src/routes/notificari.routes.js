@@ -7,7 +7,6 @@ const pool = require('../utils/db');
 router.post('/Medical/notifications', async (req, res) => {
   // Obține userId din body
   const { utilizator_id } = req.body;
-  console.log('Obținere notificări medicale pentru utilizator:', utilizator_id);
 
   // Validare userId
   if (!utilizator_id) {
@@ -35,7 +34,6 @@ router.post('/Medical/notifications', async (req, res) => {
     res.status(200).json(notifications);
 
   } catch (error) {
-    console.error('Eroare la obținerea notificărilor:', error);
     res.status(500).json({
       error: 'Eroare la obținerea notificărilor',
       details: error.message

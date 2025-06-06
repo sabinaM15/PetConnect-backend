@@ -12,7 +12,6 @@ router.post('/mesaje', async (req, res) => {
     );
     res.status(201).json({ mesaj_id: result.rows[0].adauga_mesaj });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la trimitere mesaj' });
   }
 });
@@ -23,7 +22,6 @@ router.get('/mesaje/user/:userId', async (req, res) => {
     const result = await pool.query('SELECT * FROM get_mesaje_by_user($1)', [req.params.userId]);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la preluare mesaje' });
   }
 });

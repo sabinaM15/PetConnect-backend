@@ -44,7 +44,6 @@ router.get("/conversations", async (req, res) => {
       total: result.pagination?.total || (Array.isArray(conversations) ? conversations.length : 0)
     });
   } catch (error) {
-    console.error("Error getting conversations:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -79,7 +78,6 @@ router.get("/conversations/:id", authMiddleware, async (req, res) => {
       data: conversation,
     });
   } catch (error) {
-    console.error("Error getting conversation details:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -170,7 +168,6 @@ router.post("/conversations", async (req, res) => {
       message: "Conversație creată/găsită cu succes",
     });
   } catch (error) {
-    console.error("Error creating conversation:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -245,7 +242,6 @@ router.post(
         message: "Fișier încărcat cu succes",
       });
     } catch (error) {
-      console.error("Error uploading file:", error);
       res.status(500).json({
         success: false,
         error: "Internal server error",
@@ -294,7 +290,6 @@ router.put("/conversations/:id/read", async (req, res) => {
       message: `${markedCount} mesaje marcate ca citite`,
     });
   } catch (error) {
-    console.error("Error marking messages as read:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -328,7 +323,6 @@ router.delete("/messages/:id", async (req, res) => {
       message: "Mesaj șters cu succes",
     });
   } catch (error) {
-    console.error("Error deleting message:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",
@@ -361,7 +355,6 @@ router.get("/conversations/:id/stats", async (req, res) => {
       data: stats,
     });
   } catch (error) {
-    console.error("Error getting conversation stats:", error);
     res.status(500).json({
       success: false,
       error: "Internal server error",

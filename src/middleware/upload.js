@@ -12,7 +12,6 @@ const fileDir = path.join(uploadDir, 'files');
 [uploadDir, imageDir, fileDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
-    console.log(`Created directory: ${dir}`);
   }
 });
 

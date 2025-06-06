@@ -53,7 +53,6 @@ app.use((req, res, next) => {
   
   // Răspunde la preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('📋 Preflight request received for:', req.url);
     res.status(200).end();
     return;
   }
@@ -104,7 +103,6 @@ io.use((socket, next) => {
     socket.userName = decoded.nume || decoded.mail;
     next();
   } catch (err) {
-    console.error('JWT verification failed:', err);
     next(new Error('Authentication error: Invalid token'));
   }
 });
@@ -117,7 +115,6 @@ const chatService = require('./src/services/chatService');
 
 // Gestionarea conexiunilor Socket.IO
 io.on('connection', (socket) => {
-  console.log(`✅ User ${socket.userId} (${socket.nume_utilizator}) connected`);
   
   // Adaugă utilizatorul în lista celor conectați
   connectedUsers.set(socket.userId, {
@@ -141,8 +138,6 @@ io.on('connection', (socket) => {
   // Gestionarea trimiterii mesajelor TEXT
   socket.on('send_message', async (data) => {
     try {
-      console.log('📨 Message received:', data);
-      
       if (!data.conversatie_id || !data.continut?.trim()) {
         socket.emit('error', { message: 'Date invalide pentru mesaj' });
         return;
@@ -164,11 +159,7 @@ io.on('connection', (socket) => {
       
       // Trimite mesajul către toți participanții conversației
       io.to(`conversation_${data.conversatie_id}`).emit('new_message', mesaj);
-      
-      console.log(`✅ Message sent to conversation ${data.conversatie_id}`);
-      
     } catch (error) {
-      console.error('❌ Error sending message:', error);
       socket.emit('error', { message: 'Eroare la trimiterea mesajului' });
     }
   });
@@ -184,7 +175,6 @@ io.on('connection', (socket) => {
       }
       
       socket.join(`conversation_${conversatieId}`);
-      console.log(`👥 User ${socket.userId} joined conversation ${conversatieId}`);
       
       // Notifică alți participanți că utilizatorul a intrat în conversație
       socket.to(`conversation_${conversatieId}`).emit('user_joined_conversation', {
@@ -194,7 +184,6 @@ io.on('connection', (socket) => {
       });
       
     } catch (error) {
-      console.error('❌ Error joining conversation:', error);
       socket.emit('error', { message: 'Eroare la alăturarea în conversație' });
     }
   });
@@ -202,7 +191,6 @@ io.on('connection', (socket) => {
   // Părăsirea unei conversații
   socket.on('leave_conversation', (conversatieId) => {
     socket.leave(`conversation_${conversatieId}`);
-    console.log(`👋 User ${socket.userId} left conversation ${conversatieId}`);
     
     // Notifică alți participanți că utilizatorul a părăsit conversația
     socket.to(`conversation_${conversatieId}`).emit('user_left_conversation', {
@@ -224,12 +212,8 @@ io.on('connection', (socket) => {
         user_name: socket.userName,
         read_at: new Date(),
         marked_count: markedCount
-      });
-      
-      console.log(`✅ ${markedCount} messages marked as read in conversation ${data.conversatie_id}`);
-      
+      });      
     } catch (error) {
-      console.error('❌ Error marking messages as read:', error);
       socket.emit('error', { message: 'Eroare la marcarea mesajelor ca citite' });
     }
   });
@@ -255,7 +239,6 @@ io.on('connection', (socket) => {
   
   // Gestionarea deconectării
   socket.on('disconnect', (reason) => {
-    console.log(`❌ User ${socket.userId} disconnected: ${reason}`);
     
     // Elimină utilizatorul din lista celor conectați
     connectedUsers.delete(socket.userId);
@@ -271,7 +254,6 @@ io.on('connection', (socket) => {
   
   // Gestionarea erorilor
   socket.on('error', (error) => {
-    console.error(`❌ Socket error for user ${socket.userId}:`, error);
   });
 });
 
@@ -296,7 +278,6 @@ app.set('io', io);
 
 // Middleware global pentru gestionarea erorilor
 app.use((error, req, res, next) => {
-  console.error('Global error handler:', error);
   res.status(500).json({
     success: false,
     error: 'Internal server error',
@@ -315,9 +296,6 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📡 Socket.IO server is ready`);
-  console.log(`📁 Static files served from: ${path.join(__dirname, 'public')}`);
 });
 
 // Export pentru utilizare în alte module

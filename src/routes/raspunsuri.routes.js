@@ -19,7 +19,6 @@ router.post('/Raspunsuri', async (req, res) => {
     );
     res.status(201).json({ message: 'Răspuns adăugat cu succes!' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la adăugarea răspunsului.' });
   }
 });

@@ -27,7 +27,6 @@ router.get('/Anunturi/imperechere', async (req, res) => {
       total: total
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -47,7 +46,6 @@ router.post('/Anunturi/imperechere', async (req, res) => {
     );
     res.status(201).json({ anunt_id: result.rows[0].anunt_id });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la adăugarea anunțului.' });
   }
 });
@@ -77,7 +75,6 @@ router.get("/Anunturi/socializare", async (req, res) => {
       total: total
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -107,7 +104,6 @@ router.post('/Anunturi/socializare', async (req, res) => {
     );
     res.status(201).json({ anunt_id: result.rows[0].adauga_anunt_socializare });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la adăugarea anunțului.' });
   }
 });
@@ -126,7 +122,6 @@ router.post('/Anunturi/socializare/participa', async (req, res) => {
     );
     res.status(200).json({ message: 'Animalul a fost adăugat la participanți.' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la adăugarea participantului.' });
   }
 });
@@ -156,7 +151,6 @@ router.get("/Anunturi/suport", async (req, res) => {
       total: total
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -182,7 +176,6 @@ router.post('/Anunturi/suport', async (req, res) => {
     );
     res.status(201).json({ anunt_id: result.rows[0].adauga_anunt_suport });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Eroare la adăugarea anunțului de suport.' });
   }
 });
