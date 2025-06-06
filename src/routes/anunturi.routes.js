@@ -87,18 +87,20 @@ router.post('/Anunturi/socializare', async (req, res) => {
     data_anuntului,
     locatie,
     descriere,
+    utilizator,
     animal_id // poate fi null pentru grup
   } = req.body;
 
   try {
     const result = await pool.query(
-      'SELECT adauga_anunt_socializare($1, $2, $3, $4, $5, $6)',
+      'SELECT adauga_anunt_socializare($1, $2, $3, $4, $5, $6, $7)',
       [
         titlu,
         tip,
         data_anuntului,
         locatie,
         descriere,
+        utilizator,
         animal_id // trimite null dacă nu există
       ]
     );
@@ -179,6 +181,52 @@ router.post('/Anunturi/suport', async (req, res) => {
     res.status(500).json({ error: 'Eroare la adăugarea anunțului de suport.' });
   }
 });
+
+// În anunturi.routes.js
+router.put('/Anunturi/:id',  async (req, res) => {
+  try {
+    const anuntId = req.params.id;
+
+    // Verifică că anunțul aparține utilizatorului
+    const checkQuery = `
+      SELECT utilizator FROM "Anunturi" 
+      WHERE anunt_id = $1
+    `;
+    const checkResult = await pool.query(checkQuery, [anuntId]);
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Anunțul nu a fost găsit'
+      });
+    }
+
+    // Actualizează coloana afisare
+    const updateQuery = `
+      UPDATE "Anunturi" 
+      SET afisare = false 
+      WHERE anunt_id = $1
+      RETURNING anunt_id, afisare
+    `;
+    
+    const result = await pool.query(updateQuery, [anuntId]);
+
+    res.json({
+      success: true,
+      message: 'Anunțul a fost închis cu succes',
+      data: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error closing announcement:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Eroare la închiderea anunțului',
+      message: error.message
+    });
+  }
+});
+
 
 
 
