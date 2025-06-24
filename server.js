@@ -8,6 +8,11 @@ const server = http.createServer(app);
 
 require('dotenv').config();
 
+console.log('Server starting...');
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -115,10 +120,11 @@ const connectedUsers = new Map();
 
 // Importă serviciul chat
 const chatService = require('./src/services/chatService');
+const { Server } = require('https');
 
 // Gestionarea conexiunilor Socket.IO
 io.on('connection', (socket) => {
-  
+    console.log('User connected:', socket.id);
   // Adaugă utilizatorul în lista celor conectați
   connectedUsers.set(socket.userId, {
     socketId: socket.id,
@@ -297,8 +303,10 @@ app.use('*', (req, res) => {
   });
 });
 
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // Export pentru utilizare în alte module

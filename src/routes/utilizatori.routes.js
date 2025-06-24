@@ -245,7 +245,6 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Username sau parolă incorectă" });
     }
 
-    // 4. CREEAZĂ JWT TOKEN - ACEASTA ESTE PARTEA NOUĂ
     const token = jwt.sign(
       {
         utilizator_id: user.utilizator_id,
