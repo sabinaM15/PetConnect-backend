@@ -304,8 +304,8 @@ router.put("/Utilizatori", upload.single("poza"), async (req, res) => {
     parola,
     tip_profil,
   } = req.body;
+  console.log("Received data:", req.body);
 
-  // poza poate fi null dacă nu se trimite
   const poza = req.file ? req.file.buffer : null;
 
   try {
@@ -322,7 +322,7 @@ router.put("/Utilizatori", upload.single("poza"), async (req, res) => {
         sex,
         parola,
         tip_profil,
-        poza, // noul parametru pentru poza
+        poza, 
       ]
     );
     if (result.rows.length > 0) {
@@ -333,7 +333,7 @@ router.put("/Utilizatori", upload.single("poza"), async (req, res) => {
       });
     }
   } catch (err) {
-
+    console.error("Error fetching user:", err);
     res.status(500).json({ error: "Eroare la actualizare utilizator." });
   }
 });
