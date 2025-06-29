@@ -355,7 +355,7 @@ router.get("/Animale/:userId", async (req, res) => {
 router.get('/Utilizatori', authMiddleware, async (req, res) => {
   try {
     const query = `
-      SELECT utilizator_id, nume, prenume, mail, tip_profil, email_validat
+      SELECT utilizator_id, nume, prenume, mail, tip_profil, email_validat, poza
       FROM "Utilizatori"
       WHERE email_validat = true
       ORDER BY nume, prenume
@@ -368,7 +368,8 @@ router.get('/Utilizatori', authMiddleware, async (req, res) => {
       nume: user.nume,
       prenume: user.prenume,
       mail: user.mail,
-      tip_profil: user.tip_profil
+      tip_profil: user.tip_profil,
+      poza: user.poza ?? null, // Convertim poza în base64 dacă există
     }));
     
     res.json({
