@@ -27,20 +27,34 @@ router.get("/Anunturi/imperechere", async (req, res) => {
       total: total,
     });
   } catch (err) {
+    console.error("Error fetching mating ads:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
 router.post("/Anunturi/imperechere", async (req, res) => {
   const { animal, utilizator, descriere, locatie } = req.body;
+  console.log("=== Adăugare anunț împerechere ===");
+  console.log("Request body:", {
+    animal,
+    utilizator,
+    descriere,
+    locatie
+  });
 
   try {
     const result = await pool.query(
       "SELECT adauga_anunt_imperechere($1, $2, $3, $4) AS anunt_id",
       [animal, utilizator, descriere, locatie]
     );
-    res.status(201).json({ anunt_id: result.rows[0].anunt_id });
+    
+    const anuntId = result.rows[0].anunt_id;
+    console.log("Anunț împerechere adăugat cu succes. ID:", anuntId);
+    
+    res.status(201).json({ anunt_id: anuntId });
   } catch (err) {
+    console.error("Error adding mating ad:", err);
+    console.error("Query parameters:", { animal, utilizator, descriere, locatie });
     res.status(500).json({ error: "Eroare la adăugarea anunțului." });
   }
 });
@@ -100,6 +114,7 @@ router.post("/Anunturi/socializare", async (req, res) => {
     );
     res.status(201).json({ anunt_id: result.rows[0].adauga_anunt_socializare });
   } catch (err) {
+    console.error("Error adding socialization ad:", err);
     res.status(500).json({ error: "Eroare la adăugarea anunțului." });
   }
 });

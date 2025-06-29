@@ -2,14 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
 
-// Adaugă logging pentru toate cererile care ajung la acest router
-router.use((req, res, next) => {
-  console.log('Raspunsuri route accessed:', req.method, req.url);
-  next();
-});
-
 router.post('/Raspunsuri', async (req, res) => {
-  console.log('Received request to add answer:', req.body);
   const {
     intrebare_id,
     autorul_raspunsului,

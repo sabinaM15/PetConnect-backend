@@ -124,8 +124,7 @@ const { Server } = require('https');
 
 // Gestionarea conexiunilor Socket.IO
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
-  // Adaugă utilizatorul în lista celor conectați
+    // console.log('User connected:', socket.id);
   connectedUsers.set(socket.userId, {
     socketId: socket.id,
     userId: socket.userId,

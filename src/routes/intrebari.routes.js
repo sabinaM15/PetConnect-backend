@@ -2,12 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
 
-
-router.use((req, res, next) => {
-  console.log('Intrebari route accessed:', req.method, req.url);
-  next();
-});
-
 router.get("/Intrebari", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const count = parseInt(req.query.count) || 10;
@@ -21,7 +15,6 @@ router.get("/Intrebari", async (req, res) => {
     
     const intrebari = result.rows;
     const total = intrebari.length > 0 ? parseInt(intrebari[0].total) : 0;
-      console.log(intrebari);
     res.json({
       data: intrebari.map(intrebare => {
         const { total, ...intrebareData } = intrebare;
