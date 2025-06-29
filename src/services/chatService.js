@@ -1,4 +1,3 @@
-// src/services/chatService.js
 const pool = require("../utils/db");
 const { generateId } = require("../utils/helpers");
 

@@ -1,10 +1,8 @@
-// src/middleware/upload.js
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { generateId } = require('../utils/helpers');
 
-// Asigură-te că directoarele există
 const uploadDir = 'public/uploads/chat';
 const imageDir = path.join(uploadDir, 'images');
 const fileDir = path.join(uploadDir, 'files');
@@ -15,7 +13,6 @@ const fileDir = path.join(uploadDir, 'files');
   }
 });
 
-// Configurarea storage-ului
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const isImage = file.mimetype.startsWith('image/');
