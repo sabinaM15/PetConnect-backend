@@ -19,20 +19,32 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Configurează Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:8100", "http://localhost:8101", "http://localhost:4200"], // ADAUGĂ 8101
+    origin: [
+      "http://localhost:8100", 
+      "http://localhost:8101", 
+      "http://localhost:4200",
+      "capacitor://localhost",
+      "ionic://localhost",
+      "http://localhost",
+      "https://localhost"
+    ],
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
-// ACTUALIZEAZĂ CONFIGURAREA CORS - aceasta este partea principală care lipsește
+// CORS configuration for Capacitor apps
 const corsOptions = {
   origin: [
     "http://localhost:8100", 
-    "http://localhost:8101",  // ADAUGĂ portul tău actual
-    "http://localhost:4200"
+    "http://localhost:8101",
+    "http://localhost:4200",
+    "capacitor://localhost",
+    "ionic://localhost", 
+    "http://localhost",
+    "https://localhost"
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // ADAUGĂ OPTIONS și PUT/DELETE
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type', 
     'Authorization', 
@@ -46,13 +58,24 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// ADAUGĂ MIDDLEWARE SUPLIMENTAR PENTRU PREFLIGHT REQUESTS
+// CORS middleware for Capacitor support
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ["http://localhost:8100", "http://localhost:8101", "http://localhost:4200"];
+  const allowedOrigins = [
+    "http://localhost:8100", 
+    "http://localhost:8101", 
+    "http://localhost:4200",
+    "capacitor://localhost",
+    "ionic://localhost",
+    "http://localhost",
+    "https://localhost"
+  ];
   
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    // Allow capacitor origins even if not exactly matched
+    res.header('Access-Control-Allow-Origin', '*');
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -304,8 +327,9 @@ app.use('*', (req, res) => {
 
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Access from other devices using IP:', '192.168.12.138:3000');
 });
 
 // Export pentru utilizare în alte module
