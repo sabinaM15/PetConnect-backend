@@ -29,7 +29,10 @@ const io = socketIo(server, {
       "https://localhost",
       "http://192.168.0.109:8100",
       "http://192.168.0.109:8101",
-      "http://192.168.0.109:4200",],
+      "http://192.168.0.109:4200",
+      "http://172.20.10.11:8100",
+      "http://172.20.10.11:8101",
+      "http://172.20.10.11:4200",],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -47,7 +50,10 @@ const corsOptions = {
     "https://localhost",
       "http://192.168.0.109:8100",
       "http://192.168.0.109:8101",
-      "http://192.168.0.109:4200",],
+      "http://192.168.0.109:4200",
+      "http://172.20.10.11:8100",
+      "http://172.20.10.11:8101",
+      "http://172.20.10.11:4200",],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type', 
@@ -75,7 +81,10 @@ app.use((req, res, next) => {
     "https://localhost",
     "http://192.168.0.109:8100",
     "http://192.168.0.109:8101",
-    "http://192.168.0.109:4200",];
+    "http://192.168.0.109:4200",
+    "http://172.20.10.11:8100",
+    "http://172.20.10.11:8101",
+    "http://172.20.10.11:4200",];
   
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
