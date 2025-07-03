@@ -26,8 +26,10 @@ const io = socketIo(server, {
       "capacitor://localhost",
       "ionic://localhost",
       "http://localhost",
-      "https://localhost"
-    ],
+      "https://localhost",
+      "http://192.168.0.109:8100",
+      "http://192.168.0.109:8101",
+      "http://192.168.0.109:4200",],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -42,8 +44,10 @@ const corsOptions = {
     "capacitor://localhost",
     "ionic://localhost", 
     "http://localhost",
-    "https://localhost"
-  ],
+    "https://localhost",
+      "http://192.168.0.109:8100",
+      "http://192.168.0.109:8101",
+      "http://192.168.0.109:4200",],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type', 
@@ -68,8 +72,10 @@ app.use((req, res, next) => {
     "capacitor://localhost",
     "ionic://localhost",
     "http://localhost",
-    "https://localhost"
-  ];
+    "https://localhost",
+    "http://192.168.0.109:8100",
+    "http://192.168.0.109:8101",
+    "http://192.168.0.109:4200",];
   
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);

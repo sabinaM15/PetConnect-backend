@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "update-ip": "node update-ip.js",
+    "start": "npm run update-ip && node server.js",
+    "dev": "npm run update-ip && nodemon server.js"
   },
   "keywords": [],
   "author": "",
